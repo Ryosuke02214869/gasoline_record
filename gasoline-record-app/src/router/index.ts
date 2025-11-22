@@ -24,6 +24,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/vehicles',
+      name: 'vehicles',
+      component: () => import('../views/VehicleListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/vehicles/create',
+      name: 'vehicle-create',
+      component: () => import('../views/VehicleCreateView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/vehicles/:id/edit',
+      name: 'vehicle-edit',
+      component: () => import('../views/VehicleEditView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
