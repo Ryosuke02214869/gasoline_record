@@ -1,7 +1,16 @@
 <template>
   <div class="vehicle-list-container">
     <div class="page-header">
-      <h1>車両管理</h1>
+      <div class="header-left">
+        <Button
+          icon="pi pi-home"
+          label="ホーム"
+          @click="$router.push('/')"
+          severity="secondary"
+          outlined
+        />
+        <h1>車両管理</h1>
+      </div>
       <Button
         label="新しい車両を登録"
         icon="pi pi-plus"
@@ -177,7 +186,7 @@ const handleDelete = async () => {
 <style scoped>
 .vehicle-list-container {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -186,6 +195,14 @@ const handleDelete = async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .page-header h1 {
@@ -293,8 +310,26 @@ const handleDelete = async () => {
   font-size: 1.1rem;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* PC画面（1200px以上） */
+@media (min-width: 1200px) {
+  .vehicle-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+}
+
+/* タブレット画面（768px〜1199px） */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .vehicle-list-container {
+    max-width: 900px;
+  }
+
+  .vehicle-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* スマホ画面（768px未満） */
+@media (max-width: 767px) {
   .vehicle-list-container {
     padding: 1rem;
   }
@@ -305,6 +340,11 @@ const handleDelete = async () => {
     align-items: stretch;
   }
 
+  .header-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .page-header h1 {
     font-size: 1.5rem;
     text-align: center;
@@ -312,6 +352,14 @@ const handleDelete = async () => {
 
   .vehicle-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions button {
+    width: 100%;
   }
 }
 </style>

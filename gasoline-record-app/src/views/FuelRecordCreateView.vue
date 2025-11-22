@@ -3,13 +3,23 @@
     <Card class="form-card">
       <template #title>
         <div class="form-header">
-          <Button
-            icon="pi pi-arrow-left"
-            @click="$router.push('/fuel-records')"
-            text
-            rounded
-            class="back-button"
-          />
+          <div class="header-buttons">
+            <Button
+              icon="pi pi-home"
+              @click="$router.push('/')"
+              text
+              rounded
+              severity="secondary"
+              class="home-button"
+            />
+            <Button
+              icon="pi pi-arrow-left"
+              @click="$router.push('/fuel-records')"
+              text
+              rounded
+              class="back-button"
+            />
+          </div>
           <h1>給油記録の登録</h1>
         </div>
       </template>
@@ -286,6 +296,12 @@ const handleSubmit = async () => {
   gap: 1rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.home-button,
 .back-button {
   font-size: 1.5rem;
 }
@@ -376,8 +392,22 @@ const handleSubmit = async () => {
   flex: 1;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* PC画面（1200px以上） */
+@media (min-width: 1200px) {
+  .fuel-record-create-container {
+    max-width: 800px;
+  }
+}
+
+/* タブレット画面（768px〜1199px） */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .fuel-record-create-container {
+    max-width: 900px;
+  }
+}
+
+/* スマホ画面（768px未満） */
+@media (max-width: 767px) {
   .fuel-record-create-container {
     padding: 1rem;
   }

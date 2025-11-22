@@ -8,13 +8,23 @@
     <Card v-else-if="vehicle" class="form-card">
       <template #title>
         <div class="form-header">
-          <Button
-            icon="pi pi-arrow-left"
-            @click="$router.push('/vehicles')"
-            text
-            rounded
-            class="back-button"
-          />
+          <div class="header-buttons">
+            <Button
+              icon="pi pi-home"
+              @click="$router.push('/')"
+              text
+              rounded
+              severity="secondary"
+              class="home-button"
+            />
+            <Button
+              icon="pi pi-arrow-left"
+              @click="$router.push('/vehicles')"
+              text
+              rounded
+              class="back-button"
+            />
+          </div>
           <h1>車両の編集</h1>
         </div>
       </template>
@@ -203,6 +213,12 @@ const handleSubmit = async () => {
   gap: 1rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.home-button,
 .back-button {
   font-size: 1.5rem;
 }
@@ -278,8 +294,22 @@ const handleSubmit = async () => {
   font-size: 1.1rem;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* PC画面（1200px以上） */
+@media (min-width: 1200px) {
+  .vehicle-edit-container {
+    max-width: 800px;
+  }
+}
+
+/* タブレット画面（768px〜1199px） */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .vehicle-edit-container {
+    max-width: 900px;
+  }
+}
+
+/* スマホ画面（768px未満） */
+@media (max-width: 767px) {
   .vehicle-edit-container {
     padding: 1rem;
   }

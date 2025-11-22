@@ -3,13 +3,23 @@
     <Card class="form-card">
       <template #title>
         <div class="form-header">
-          <Button
-            icon="pi pi-arrow-left"
-            @click="$router.push('/vehicles')"
-            text
-            rounded
-            class="back-button"
-          />
+          <div class="header-buttons">
+            <Button
+              icon="pi pi-home"
+              @click="$router.push('/')"
+              text
+              rounded
+              severity="secondary"
+              class="home-button"
+            />
+            <Button
+              icon="pi pi-arrow-left"
+              @click="$router.push('/vehicles')"
+              text
+              rounded
+              class="back-button"
+            />
+          </div>
           <h1>車両の登録</h1>
         </div>
       </template>
@@ -143,6 +153,12 @@ const handleSubmit = async () => {
   gap: 1rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.home-button,
 .back-button {
   font-size: 1.5rem;
 }
