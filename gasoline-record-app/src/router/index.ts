@@ -42,6 +42,24 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/fuel-records',
+      name: 'fuel-records',
+      component: () => import('../views/FuelRecordListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/fuel-records/create',
+      name: 'fuel-record-create',
+      component: () => import('../views/FuelRecordCreateView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/fuel-records/:id/edit',
+      name: 'fuel-record-edit',
+      component: () => import('../views/FuelRecordEditView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),

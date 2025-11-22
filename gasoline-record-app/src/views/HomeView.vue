@@ -47,13 +47,12 @@ const handleLogout = async () => {
           </template>
         </Card>
 
-        <Card class="menu-card disabled">
+        <Card class="menu-card" @click="$router.push('/fuel-records')">
           <template #content>
             <div class="menu-content">
               <i class="pi pi-book menu-icon"></i>
               <h2>給油記録</h2>
               <p>給油記録の登録・管理</p>
-              <span class="coming-soon">準備中</span>
             </div>
           </template>
         </Card>
