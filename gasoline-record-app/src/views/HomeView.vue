@@ -107,7 +107,7 @@ const handleLogout = async () => {
 
 .main-content {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -135,7 +135,6 @@ const handleLogout = async () => {
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -191,8 +190,34 @@ const handleLogout = async () => {
   font-weight: 600;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* PC画面（1200px以上） */
+@media (min-width: 1200px) {
+  .menu-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .welcome-card :deep(.p-card-title) {
+    font-size: 2.5rem;
+  }
+
+  .welcome-card :deep(.p-card-content) {
+    font-size: 1.2rem;
+  }
+}
+
+/* タブレット画面（768px〜1199px） */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .main-content {
+    max-width: 900px;
+  }
+}
+
+/* スマホ画面（768px未満） */
+@media (max-width: 767px) {
   .app-header {
     flex-direction: column;
     gap: 1rem;
@@ -200,16 +225,51 @@ const handleLogout = async () => {
   }
 
   .app-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+    text-align: center;
   }
 
   .user-info {
     width: 100%;
     justify-content: space-between;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .user-email {
+    font-size: 0.9rem;
   }
 
   .main-content {
     padding: 1rem;
+  }
+
+  .welcome-card :deep(.p-card-title) {
+    font-size: 1.5rem;
+  }
+
+  .welcome-card :deep(.p-card-content) {
+    font-size: 1rem;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .menu-icon {
+    font-size: 3rem;
+  }
+
+  .menu-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .menu-content p {
+    font-size: 0.95rem;
   }
 }
 </style>

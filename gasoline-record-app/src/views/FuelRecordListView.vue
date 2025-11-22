@@ -1,7 +1,16 @@
 <template>
   <div class="fuel-record-list-container">
     <div class="page-header">
-      <h1>給油記録</h1>
+      <div class="header-left">
+        <Button
+          icon="pi pi-home"
+          label="ホーム"
+          @click="$router.push('/')"
+          severity="secondary"
+          outlined
+        />
+        <h1>給油記録</h1>
+      </div>
       <Button
         label="新しい記録を登録"
         icon="pi pi-plus"
@@ -294,6 +303,14 @@ const handleDelete = async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .page-header h1 {
@@ -409,8 +426,22 @@ const handleDelete = async () => {
   font-size: 1rem;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+/* PC画面（1200px以上） */
+@media (min-width: 1200px) {
+  .fuel-record-list-container {
+    max-width: 1400px;
+  }
+}
+
+/* タブレット画面（768px〜1199px） */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .fuel-record-list-container {
+    max-width: 900px;
+  }
+}
+
+/* スマホ画面（768px未満） */
+@media (max-width: 767px) {
   .fuel-record-list-container {
     padding: 1rem;
   }
@@ -418,6 +449,11 @@ const handleDelete = async () => {
   .page-header {
     flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
+  }
+
+  .header-left {
+    flex-direction: column;
     align-items: stretch;
   }
 
