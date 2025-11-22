@@ -33,16 +33,41 @@ const handleLogout = async () => {
         <template #content>
           <p>ガソリン給油記録アプリへようこそ。</p>
           <p>このアプリでは、給油記録の管理と燃費の計算ができます。</p>
-          <br />
-          <p><strong>次の機能を実装予定：</strong></p>
-          <ul>
-            <li>車両の登録・管理</li>
-            <li>給油記録の登録・編集・削除</li>
-            <li>燃費の自動計算</li>
-            <li>給油履歴の一覧表示</li>
-          </ul>
         </template>
       </Card>
+
+      <div class="menu-grid">
+        <Card class="menu-card" @click="$router.push('/vehicles')">
+          <template #content>
+            <div class="menu-content">
+              <i class="pi pi-car menu-icon"></i>
+              <h2>車両管理</h2>
+              <p>車両の登録・編集・削除</p>
+            </div>
+          </template>
+        </Card>
+
+        <Card class="menu-card" @click="$router.push('/fuel-records')">
+          <template #content>
+            <div class="menu-content">
+              <i class="pi pi-book menu-icon"></i>
+              <h2>給油記録</h2>
+              <p>給油記録の登録・管理</p>
+            </div>
+          </template>
+        </Card>
+
+        <Card class="menu-card disabled">
+          <template #content>
+            <div class="menu-content">
+              <i class="pi pi-chart-line menu-icon"></i>
+              <h2>燃費分析</h2>
+              <p>燃費の自動計算と表示</p>
+              <span class="coming-soon">準備中</span>
+            </div>
+          </template>
+        </Card>
+      </div>
     </main>
   </div>
 </template>
@@ -106,6 +131,64 @@ const handleLogout = async () => {
 
 .welcome-card :deep(.p-card-content) li {
   margin-bottom: 0.5rem;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.menu-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.menu-card:not(.disabled):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.menu-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.menu-content {
+  text-align: center;
+  padding: 2rem 1rem;
+  position: relative;
+}
+
+.menu-icon {
+  font-size: 4rem;
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+.menu-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 0.5rem;
+}
+
+.menu-content p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.coming-soon {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #f0f0f0;
+  color: #999;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 /* レスポンシブ対応 */

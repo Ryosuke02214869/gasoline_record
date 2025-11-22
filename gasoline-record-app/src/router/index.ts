@@ -24,6 +24,42 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/vehicles',
+      name: 'vehicles',
+      component: () => import('../views/VehicleListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/vehicles/create',
+      name: 'vehicle-create',
+      component: () => import('../views/VehicleCreateView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/vehicles/:id/edit',
+      name: 'vehicle-edit',
+      component: () => import('../views/VehicleEditView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/fuel-records',
+      name: 'fuel-records',
+      component: () => import('../views/FuelRecordListView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/fuel-records/create',
+      name: 'fuel-record-create',
+      component: () => import('../views/FuelRecordCreateView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/fuel-records/:id/edit',
+      name: 'fuel-record-edit',
+      component: () => import('../views/FuelRecordEditView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
