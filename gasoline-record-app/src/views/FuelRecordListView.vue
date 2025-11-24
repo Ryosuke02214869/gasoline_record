@@ -293,9 +293,9 @@ const handleDelete = async () => {
 
 <style scoped>
 .fuel-record-list-container {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--vt-c-bg-lavender);
+  padding: 1.5rem;
 }
 
 .page-header {
@@ -314,14 +314,37 @@ const handleDelete = async () => {
 }
 
 .page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--vt-c-text-primary);
   margin: 0;
+}
+
+.page-header :deep(.p-button) {
+  background: var(--vt-c-secondary);
+  border: none;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.page-header :deep(.p-button:hover) {
+  background: var(--vt-c-secondary-dark);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
 .filter-card {
   margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.filter-card :deep(.p-card) {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .filter-section {
@@ -332,14 +355,13 @@ const handleDelete = async () => {
 
 .filter-section label {
   font-weight: 600;
-  color: #333;
-  font-size: 1.1rem;
+  color: var(--vt-c-text-primary);
+  font-size: 0.875rem;
 }
 
 .vehicle-select {
   width: 100%;
-  max-width: 400px;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .loading-container {
@@ -352,7 +374,14 @@ const handleDelete = async () => {
 }
 
 .empty-state {
-  margin-top: 2rem;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+
+.empty-state :deep(.p-card) {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .empty-content {
@@ -363,29 +392,54 @@ const handleDelete = async () => {
   padding: 3rem 2rem;
 }
 
+.empty-content i {
+  color: var(--vt-c-text-tertiary);
+}
+
 .empty-content h2 {
   margin: 1rem 0 0.5rem;
-  color: #666;
-  font-size: 1.5rem;
-}
-
-.empty-content p {
-  color: #999;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-}
-
-.table-card {
-  font-size: 1rem;
-}
-
-.fuel-table :deep(.p-datatable-thead > tr > th) {
-  font-size: 1rem;
+  color: var(--vt-c-text-primary);
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
+.empty-content p {
+  color: var(--vt-c-text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.empty-content :deep(.p-button) {
+  background: var(--vt-c-secondary);
+  border: none;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.table-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.table-card :deep(.p-card) {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.fuel-table :deep(.p-datatable-thead > tr > th) {
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--vt-c-bg-lavender);
+  color: var(--vt-c-text-primary);
+}
+
 .fuel-table :deep(.p-datatable-tbody > tr > td) {
-  font-size: 1rem;
+  font-size: 0.875rem;
+  color: var(--vt-c-text-secondary);
 }
 
 .vehicle-cell {
@@ -393,16 +447,16 @@ const handleDelete = async () => {
 }
 
 .vehicle-cell strong {
-  color: #333;
+  color: var(--vt-c-text-primary);
 }
 
 .vehicle-cell small {
-  color: #666;
+  color: var(--vt-c-text-tertiary);
 }
 
 .fuel-efficiency {
   font-weight: 600;
-  color: #667eea;
+  color: var(--vt-c-primary);
 }
 
 .action-buttons {
@@ -426,17 +480,18 @@ const handleDelete = async () => {
   font-size: 1rem;
 }
 
-/* PC画面（1200px以上） */
-@media (min-width: 1200px) {
+/* PC画面（768px以上） */
+@media (min-width: 768px) {
   .fuel-record-list-container {
-    max-width: 1400px;
+    padding: 2rem;
   }
-}
 
-/* タブレット画面（768px〜1199px） */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .fuel-record-list-container {
-    max-width: 900px;
+  .filter-card {
+    max-width: 700px;
+  }
+
+  .table-card {
+    max-width: 1400px;
   }
 }
 
@@ -453,13 +508,16 @@ const handleDelete = async () => {
   }
 
   .header-left {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .page-header h1 {
-    font-size: 1.5rem;
-    text-align: center;
+    font-size: 1.125rem;
+  }
+
+  .filter-card {
+    max-width: 100%;
   }
 
   .vehicle-select {
@@ -468,7 +526,8 @@ const handleDelete = async () => {
 
   .fuel-table :deep(.p-datatable-thead > tr > th),
   .fuel-table :deep(.p-datatable-tbody > tr > td) {
-    font-size: 0.9rem;
+    font-size: 0.75rem;
+    padding: 0.5rem;
   }
 }
 </style>
