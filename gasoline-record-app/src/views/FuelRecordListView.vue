@@ -37,6 +37,24 @@
       </template>
     </Card>
 
+    <!-- スマホ用の表示切替タブ -->
+    <div class="display-mode-tabs mobile-only">
+      <button
+        :class="['tab-button', { active: displayMode === 'card' }]"
+        @click="displayMode = 'card'"
+      >
+        <i class="pi pi-th-large"></i>
+        <span>カード表示</span>
+      </button>
+      <button
+        :class="['tab-button', { active: displayMode === 'table' }]"
+        @click="displayMode = 'table'"
+      >
+        <i class="pi pi-list"></i>
+        <span>一覧表示</span>
+      </button>
+    </div>
+
     <div v-if="fuelRecordStore.loading" class="loading-container">
       <ProgressSpinner />
       <p>読み込み中...</p>
@@ -146,8 +164,8 @@
       </template>
     </Card>
 
-    <!-- スマホ用のリスト表示 -->
-    <div v-if="displayedRecords.length > 0" class="mobile-list">
+    <!-- スマホ用のカード表示 -->
+    <div v-if="displayedRecords.length > 0 && displayMode === 'card'" class="mobile-list">
       <Card
         v-for="record in mobileDisplayedRecords"
         :key="record.id"
@@ -171,6 +189,38 @@
           </div>
         </template>
       </Card>
+
+      <!-- もっと見るボタン -->
+      <div v-if="hasMoreRecords" class="show-more-container">
+        <Button
+          :label="`もっと見る (残り${remainingRecordsCount}件)`"
+          icon="pi pi-angle-down"
+          @click="showMoreRecords"
+          outlined
+          class="show-more-button"
+        />
+      </div>
+    </div>
+
+    <!-- スマホ用の一覧表示 -->
+    <div v-if="displayedRecords.length > 0 && displayMode === 'table'" class="mobile-table-view">
+      <div class="simple-table">
+        <div class="table-header">
+          <div class="table-cell">日付</div>
+          <div class="table-cell">給油量</div>
+          <div class="table-cell">走行距離</div>
+        </div>
+        <div
+          v-for="record in mobileDisplayedRecords"
+          :key="record.id"
+          class="table-row"
+          @click="showRecordDetail(record)"
+        >
+          <div class="table-cell">{{ formatDateShort(record.date) }}</div>
+          <div class="table-cell">{{ record.fuel_amount.toFixed(2) }}L</div>
+          <div class="table-cell">{{ formatNumber(record.odometer) }}km</div>
+        </div>
+      </div>
 
       <!-- もっと見るボタン -->
       <div v-if="hasMoreRecords" class="show-more-container">
@@ -309,6 +359,7 @@ const recordToDelete = ref<FuelRecord | null>(null)
 const detailDialogVisible = ref(false)
 const selectedRecord = ref<FuelRecord | null>(null)
 const mobileDisplayLimit = ref(5)
+const displayMode = ref<'card' | 'table'>('card')
 
 const vehicleOptions = computed(() => {
   return [
@@ -375,6 +426,13 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric',
   })
+}
+
+const formatDateShort = (dateString: string) => {
+  const date = new Date(dateString)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${month}月${day}日`
 }
 
 const formatCurrency = (value: number | undefined) => {
@@ -612,9 +670,109 @@ const handleDelete = async () => {
   gap: 0.5rem;
 }
 
+/* スマホ用の表示切替タブ（デフォルトでは非表示） */
+.mobile-only {
+  display: none;
+}
+
+.display-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--vt-c-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button i {
+  font-size: 1rem;
+}
+
+.tab-button.active {
+  background: var(--vt-c-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.3);
+}
+
+.tab-button:hover:not(.active) {
+  background: var(--vt-c-bg-blue-light);
+  color: var(--vt-c-primary);
+}
+
 /* スマホ用のリスト表示（デフォルトでは非表示） */
 .mobile-list {
   display: none;
+}
+
+.mobile-table-view {
+  display: none;
+}
+
+/* 一覧表示用のシンプルテーブル */
+.simple-table {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--vt-c-bg-lavender);
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: var(--vt-c-bg-blue-light);
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+}
+
+.table-header .table-cell {
+  font-weight: 600;
 }
 
 .mobile-record-card {
@@ -806,12 +964,22 @@ const handleDelete = async () => {
     max-width: 100%;
   }
 
-  /* スマホではテーブルを非表示にしてリスト表示 */
+  /* スマホではPC用テーブルを非表示に */
   .desktop-table {
     display: none;
   }
 
+  /* スマホ用のタブを表示 */
+  .mobile-only {
+    display: flex;
+  }
+
+  /* 表示モードに応じて表示切り替え */
   .mobile-list {
+    display: block;
+  }
+
+  .mobile-table-view {
     display: block;
   }
 }
