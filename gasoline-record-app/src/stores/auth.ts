@@ -63,14 +63,31 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function signOut() {
+    // Supabaseのサインアウトイベント（SIGNED_OUT）が完全に処理されるまで待機
+    // これにより、onAuthStateChangeリスナーが状態を更新する前に
+    // router.push()が実行されることを防ぎ、ログアウトの競合状態を回避する
+    const signOutComplete = new Promise<void>((resolve) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_OUT') {
+          // イベントリスナーを解除
+          subscription.unsubscribe()
+          // 状態をクリア
+          user.value = null
+          session.value = null
+          // Promiseを解決
+          resolve()
+        }
+      })
+    })
+
     const { error } = await supabase.auth.signOut()
 
     if (error) {
       throw error
     }
 
-    user.value = null
-    session.value = null
+    // SIGNED_OUTイベントが処理され、状態がクリアされるまで待つ
+    await signOutComplete
   }
 
   return {
