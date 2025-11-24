@@ -61,7 +61,8 @@
       </Card>
     </div>
 
-    <Card v-else class="table-card">
+    <!-- PC/タブレット用のテーブル表示 -->
+    <Card v-else class="table-card desktop-table">
       <template #content>
         <DataTable
           :value="displayedRecords"
@@ -145,6 +146,102 @@
       </template>
     </Card>
 
+    <!-- スマホ用のリスト表示 -->
+    <div v-if="displayedRecords.length > 0" class="mobile-list">
+      <Card
+        v-for="record in displayedRecords"
+        :key="record.id"
+        class="mobile-record-card"
+        @click="showRecordDetail(record)"
+      >
+        <template #content>
+          <div class="mobile-record-content">
+            <div class="record-row">
+              <span class="record-label">日付</span>
+              <span class="record-value">{{ formatDate(record.date) }}</span>
+            </div>
+            <div class="record-row">
+              <span class="record-label">給油量</span>
+              <span class="record-value highlight">{{ record.fuel_amount.toFixed(2) }} L</span>
+            </div>
+            <div class="record-row">
+              <span class="record-label">走行距離</span>
+              <span class="record-value">{{ formatNumber(record.odometer) }} km</span>
+            </div>
+            <div class="record-tap-hint">
+              <i class="pi pi-angle-right"></i>
+            </div>
+          </div>
+        </template>
+      </Card>
+    </div>
+
+    <!-- 詳細表示ダイアログ（スマホ用） -->
+    <Dialog
+      v-model:visible="detailDialogVisible"
+      header="給油記録の詳細"
+      :modal="true"
+      :closable="true"
+      :style="{ width: '90vw', maxWidth: '500px' }"
+    >
+      <div v-if="selectedRecord" class="detail-content">
+        <div class="detail-row">
+          <span class="detail-label">日付</span>
+          <span class="detail-value">{{ formatDate(selectedRecord.date) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">車両</span>
+          <div class="detail-value">
+            <strong>{{ selectedRecord.vehicles?.name }}</strong>
+            <br />
+            <small>{{ selectedRecord.vehicles?.license_plate }}</small>
+          </div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">給油量</span>
+          <span class="detail-value">{{ selectedRecord.fuel_amount.toFixed(2) }} L</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">単価</span>
+          <span class="detail-value">{{ selectedRecord.price_per_liter.toFixed(2) }} 円/L</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">給油金額</span>
+          <span class="detail-value">{{ formatCurrency(selectedRecord.total_cost) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">走行距離</span>
+          <span class="detail-value">{{ formatNumber(selectedRecord.odometer) }} km</span>
+        </div>
+        <div v-if="selectedRecord.distance_from_previous" class="detail-row">
+          <span class="detail-label">前回から</span>
+          <span class="detail-value">{{ formatNumber(selectedRecord.distance_from_previous) }} km</span>
+        </div>
+        <div v-if="selectedRecord.fuel_efficiency" class="detail-row">
+          <span class="detail-label">燃費</span>
+          <span class="detail-value highlight">{{ selectedRecord.fuel_efficiency.toFixed(2) }} km/L</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="detail-actions">
+          <Button
+            label="編集"
+            icon="pi pi-pencil"
+            @click="$router.push(`/fuel-records/${selectedRecord?.id}/edit`)"
+            severity="info"
+            outlined
+          />
+          <Button
+            label="削除"
+            icon="pi pi-trash"
+            @click="confirmDelete(selectedRecord!)"
+            severity="danger"
+            outlined
+          />
+        </div>
+      </template>
+    </Dialog>
+
     <!-- 削除確認ダイアログ -->
     <Dialog
       v-model:visible="deleteDialogVisible"
@@ -201,6 +298,8 @@ const toast = useToast()
 const selectedVehicleId = ref<string | null>(null)
 const deleteDialogVisible = ref(false)
 const recordToDelete = ref<FuelRecord | null>(null)
+const detailDialogVisible = ref(false)
+const selectedRecord = ref<FuelRecord | null>(null)
 
 const vehicleOptions = computed(() => {
   return [
@@ -262,9 +361,15 @@ const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ja-JP').format(value)
 }
 
+const showRecordDetail = (record: FuelRecord) => {
+  selectedRecord.value = record
+  detailDialogVisible.value = true
+}
+
 const confirmDelete = (record: FuelRecord) => {
   recordToDelete.value = record
   deleteDialogVisible.value = true
+  detailDialogVisible.value = false
 }
 
 const handleDelete = async () => {
@@ -479,6 +584,122 @@ const handleDelete = async () => {
   gap: 0.5rem;
 }
 
+/* スマホ用のリスト表示（デフォルトでは非表示） */
+.mobile-list {
+  display: none;
+}
+
+.mobile-record-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobile-record-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.mobile-record-content {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+}
+
+.record-row:last-child {
+  border-bottom: none;
+}
+
+.record-label {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-secondary);
+  font-weight: 600;
+}
+
+.record-value {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+  font-weight: 500;
+}
+
+.record-value.highlight {
+  color: var(--vt-c-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.record-tap-hint {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--vt-c-text-tertiary);
+  font-size: 1.25rem;
+}
+
+/* 詳細表示ダイアログ */
+.detail-content {
+  padding: 0.5rem 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-secondary);
+  font-weight: 600;
+  min-width: 100px;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+  text-align: right;
+}
+
+.detail-value.highlight {
+  color: var(--vt-c-primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.detail-value strong {
+  color: var(--vt-c-text-primary);
+}
+
+.detail-value small {
+  color: var(--vt-c-text-tertiary);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.detail-actions button {
+  flex: 1;
+}
+
 .dialog-content {
   padding: 1rem 0;
 }
@@ -539,10 +760,13 @@ const handleDelete = async () => {
     max-width: 100%;
   }
 
-  .fuel-table :deep(.p-datatable-thead > tr > th),
-  .fuel-table :deep(.p-datatable-tbody > tr > td) {
-    font-size: 0.75rem;
-    padding: 0.5rem;
+  /* スマホではテーブルを非表示にしてリスト表示 */
+  .desktop-table {
+    display: none;
+  }
+
+  .mobile-list {
+    display: block;
   }
 }
 </style>
