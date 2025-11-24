@@ -13,27 +13,35 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 
-const app = createApp(App)
+// アプリの初期化を非同期関数で実行
+async function initializeApp() {
+  const app = createApp(App)
 
-const pinia = createPinia()
-app.use(pinia)
-app.use(router)
-app.use(PrimeVue, {
-  theme: {
-    preset: Aura,
-    options: {
-      // シニア世代向けに大きめのフォントサイズを設定
-      cssLayer: {
-        name: 'primevue',
-        order: 'tailwind-base, primevue, tailwind-utilities'
+  const pinia = createPinia()
+  app.use(pinia)
+
+  // 認証ストアを初期化してセッションを復元
+  const authStore = useAuthStore()
+  await authStore.initialize()
+
+  // 認証の初期化が完了してからルーターを設定
+  app.use(router)
+  app.use(PrimeVue, {
+    theme: {
+      preset: Aura,
+      options: {
+        // シニア世代向けに大きめのフォントサイズを設定
+        cssLayer: {
+          name: 'primevue',
+          order: 'tailwind-base, primevue, tailwind-utilities'
+        }
       }
     }
-  }
-})
-app.use(ToastService)
+  })
+  app.use(ToastService)
 
-app.mount('#app')
+  app.mount('#app')
+}
 
-// 認証ストアの初期化
-const authStore = useAuthStore()
-authStore.initialize()
+// アプリを起動
+initializeApp()
