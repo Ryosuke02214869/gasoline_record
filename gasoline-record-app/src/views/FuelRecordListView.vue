@@ -168,9 +168,6 @@
               <span class="record-label">走行距離</span>
               <span class="record-value">{{ formatNumber(record.odometer) }} km</span>
             </div>
-            <div class="record-tap-hint">
-              <i class="pi pi-angle-right"></i>
-            </div>
           </div>
         </template>
       </Card>
@@ -636,15 +633,6 @@ const handleDelete = async () => {
   color: var(--vt-c-secondary);
   font-weight: 600;
   font-size: 1rem;
-}
-
-.record-tap-hint {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--vt-c-text-tertiary);
-  font-size: 1.25rem;
 }
 
 /* 詳細表示ダイアログ */
