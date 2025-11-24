@@ -37,6 +37,24 @@
       </template>
     </Card>
 
+    <!-- スマホ用の表示切替タブ -->
+    <div class="display-mode-tabs mobile-only">
+      <button
+        :class="['tab-button', { active: displayMode === 'card' }]"
+        @click="displayMode = 'card'"
+      >
+        <i class="pi pi-th-large"></i>
+        <span>カード表示</span>
+      </button>
+      <button
+        :class="['tab-button', { active: displayMode === 'table' }]"
+        @click="displayMode = 'table'"
+      >
+        <i class="pi pi-list"></i>
+        <span>一覧表示</span>
+      </button>
+    </div>
+
     <div v-if="fuelRecordStore.loading" class="loading-container">
       <ProgressSpinner />
       <p>読み込み中...</p>
@@ -61,7 +79,8 @@
       </Card>
     </div>
 
-    <Card v-else class="table-card">
+    <!-- PC/タブレット用のテーブル表示 -->
+    <Card v-else class="table-card desktop-table">
       <template #content>
         <DataTable
           :value="displayedRecords"
@@ -145,6 +164,142 @@
       </template>
     </Card>
 
+    <!-- スマホ用のカード表示 -->
+    <div v-if="displayedRecords.length > 0 && displayMode === 'card'" class="mobile-list">
+      <Card
+        v-for="record in mobileDisplayedRecords"
+        :key="record.id"
+        class="mobile-record-card"
+        @click="showRecordDetail(record)"
+      >
+        <template #content>
+          <div class="mobile-record-content">
+            <div class="record-row">
+              <span class="record-label">日付</span>
+              <span class="record-value">{{ formatDate(record.date) }}</span>
+            </div>
+            <div class="record-row">
+              <span class="record-label">給油量</span>
+              <span class="record-value highlight">{{ record.fuel_amount.toFixed(2) }} L</span>
+            </div>
+            <div class="record-row">
+              <span class="record-label">走行距離</span>
+              <span class="record-value">{{ formatNumber(record.odometer) }} km</span>
+            </div>
+          </div>
+        </template>
+      </Card>
+
+      <!-- もっと見るボタン -->
+      <div v-if="hasMoreRecords" class="show-more-container">
+        <Button
+          :label="`もっと見る (残り${remainingRecordsCount}件)`"
+          icon="pi pi-angle-down"
+          @click="showMoreRecords"
+          outlined
+          class="show-more-button"
+        />
+      </div>
+    </div>
+
+    <!-- スマホ用の一覧表示 -->
+    <div v-if="displayedRecords.length > 0 && displayMode === 'table'" class="mobile-table-view">
+      <div class="simple-table">
+        <div class="table-header">
+          <div class="table-cell">日付</div>
+          <div class="table-cell">給油量</div>
+          <div class="table-cell">走行距離</div>
+        </div>
+        <div
+          v-for="record in mobileDisplayedRecords"
+          :key="record.id"
+          class="table-row"
+          @click="showRecordDetail(record)"
+        >
+          <div class="table-cell">{{ formatDateShort(record.date) }}</div>
+          <div class="table-cell">{{ record.fuel_amount.toFixed(2) }}L</div>
+          <div class="table-cell">{{ formatNumber(record.odometer) }}km</div>
+        </div>
+      </div>
+
+      <!-- もっと見るボタン -->
+      <div v-if="hasMoreRecords" class="show-more-container">
+        <Button
+          :label="`もっと見る (残り${remainingRecordsCount}件)`"
+          icon="pi pi-angle-down"
+          @click="showMoreRecords"
+          outlined
+          class="show-more-button"
+        />
+      </div>
+    </div>
+
+    <!-- 詳細表示ダイアログ（スマホ用） -->
+    <Dialog
+      v-model:visible="detailDialogVisible"
+      header="給油記録の詳細"
+      :modal="true"
+      :closable="true"
+      :style="{ width: '90vw', maxWidth: '500px' }"
+    >
+      <div v-if="selectedRecord" class="detail-content">
+        <div class="detail-row">
+          <span class="detail-label">日付</span>
+          <span class="detail-value">{{ formatDate(selectedRecord.date) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">車両</span>
+          <div class="detail-value">
+            <strong>{{ selectedRecord.vehicles?.name }}</strong>
+            <br />
+            <small>{{ selectedRecord.vehicles?.license_plate }}</small>
+          </div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">給油量</span>
+          <span class="detail-value">{{ selectedRecord.fuel_amount.toFixed(2) }} L</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">単価</span>
+          <span class="detail-value">{{ selectedRecord.price_per_liter.toFixed(2) }} 円/L</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">給油金額</span>
+          <span class="detail-value">{{ formatCurrency(selectedRecord.total_cost) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">走行距離</span>
+          <span class="detail-value">{{ formatNumber(selectedRecord.odometer) }} km</span>
+        </div>
+        <div v-if="selectedRecord.distance_from_previous" class="detail-row">
+          <span class="detail-label">前回から</span>
+          <span class="detail-value">{{ formatNumber(selectedRecord.distance_from_previous) }} km</span>
+        </div>
+        <div v-if="selectedRecord.fuel_efficiency" class="detail-row">
+          <span class="detail-label">燃費</span>
+          <span class="detail-value highlight">{{ selectedRecord.fuel_efficiency.toFixed(2) }} km/L</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="detail-actions">
+          <Button
+            label="編集"
+            icon="pi pi-pencil"
+            @click="$router.push(`/fuel-records/${selectedRecord?.id}/edit`)"
+            severity="info"
+            outlined
+          />
+          <Button
+            label="削除"
+            icon="pi pi-trash"
+            @click="confirmDelete(selectedRecord!)"
+            severity="danger"
+            outlined
+          />
+        </div>
+      </template>
+    </Dialog>
+
     <!-- 削除確認ダイアログ -->
     <Dialog
       v-model:visible="deleteDialogVisible"
@@ -201,6 +356,10 @@ const toast = useToast()
 const selectedVehicleId = ref<string | null>(null)
 const deleteDialogVisible = ref(false)
 const recordToDelete = ref<FuelRecord | null>(null)
+const detailDialogVisible = ref(false)
+const selectedRecord = ref<FuelRecord | null>(null)
+const mobileDisplayLimit = ref(5)
+const displayMode = ref<'card' | 'table'>('card')
 
 const vehicleOptions = computed(() => {
   return [
@@ -217,6 +376,18 @@ const displayedRecords = computed(() => {
     return fuelRecordStore.records
   }
   return fuelRecordStore.recordsByVehicle(selectedVehicleId.value)
+})
+
+const mobileDisplayedRecords = computed(() => {
+  return displayedRecords.value.slice(0, mobileDisplayLimit.value)
+})
+
+const hasMoreRecords = computed(() => {
+  return displayedRecords.value.length > mobileDisplayLimit.value
+})
+
+const remainingRecordsCount = computed(() => {
+  return displayedRecords.value.length - mobileDisplayLimit.value
 })
 
 onMounted(async () => {
@@ -239,6 +410,13 @@ onMounted(async () => {
 
 const handleVehicleChange = async () => {
   // フィルタリングはcomputedで自動的に行われる
+  // 車両を変更したら表示件数をリセット
+  mobileDisplayLimit.value = 5
+}
+
+const showMoreRecords = () => {
+  // すべてのレコードを表示
+  mobileDisplayLimit.value = displayedRecords.value.length
 }
 
 const formatDate = (dateString: string) => {
@@ -248,6 +426,13 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric',
   })
+}
+
+const formatDateShort = (dateString: string) => {
+  const date = new Date(dateString)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return `${month}月${day}日`
 }
 
 const formatCurrency = (value: number | undefined) => {
@@ -262,9 +447,15 @@ const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ja-JP').format(value)
 }
 
+const showRecordDetail = (record: FuelRecord) => {
+  selectedRecord.value = record
+  detailDialogVisible.value = true
+}
+
 const confirmDelete = (record: FuelRecord) => {
   recordToDelete.value = record
   deleteDialogVisible.value = true
+  detailDialogVisible.value = false
 }
 
 const handleDelete = async () => {
@@ -293,9 +484,9 @@ const handleDelete = async () => {
 
 <style scoped>
 .fuel-record-list-container {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--vt-c-bg-lavender);
+  padding: 1.5rem;
 }
 
 .page-header {
@@ -314,14 +505,52 @@ const handleDelete = async () => {
 }
 
 .page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--vt-c-text-primary);
   margin: 0;
+}
+
+.page-header :deep(.p-button) {
+  background: var(--vt-c-secondary);
+  border: none;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.page-header :deep(.p-button:hover) {
+  background: var(--vt-c-secondary-dark);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.header-left :deep(.p-button) {
+  background: var(--vt-c-primary);
+  border: none;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.2);
+}
+
+.header-left :deep(.p-button:hover) {
+  background: var(--vt-c-primary-dark);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
 }
 
 .filter-card {
   margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.filter-card :deep(.p-card) {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .filter-section {
@@ -332,14 +561,13 @@ const handleDelete = async () => {
 
 .filter-section label {
   font-weight: 600;
-  color: #333;
-  font-size: 1.1rem;
+  color: var(--vt-c-text-primary);
+  font-size: 0.875rem;
 }
 
 .vehicle-select {
   width: 100%;
-  max-width: 400px;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .loading-container {
@@ -352,7 +580,14 @@ const handleDelete = async () => {
 }
 
 .empty-state {
-  margin-top: 2rem;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+
+.empty-state :deep(.p-card) {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .empty-content {
@@ -363,29 +598,54 @@ const handleDelete = async () => {
   padding: 3rem 2rem;
 }
 
+.empty-content i {
+  color: var(--vt-c-text-tertiary);
+}
+
 .empty-content h2 {
   margin: 1rem 0 0.5rem;
-  color: #666;
-  font-size: 1.5rem;
-}
-
-.empty-content p {
-  color: #999;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-}
-
-.table-card {
-  font-size: 1rem;
-}
-
-.fuel-table :deep(.p-datatable-thead > tr > th) {
-  font-size: 1rem;
+  color: var(--vt-c-text-primary);
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
+.empty-content p {
+  color: var(--vt-c-text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.empty-content :deep(.p-button) {
+  background: var(--vt-c-secondary);
+  border: none;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.table-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.table-card :deep(.p-card) {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.fuel-table :deep(.p-datatable-thead > tr > th) {
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--vt-c-bg-lavender);
+  color: var(--vt-c-text-primary);
+}
+
 .fuel-table :deep(.p-datatable-tbody > tr > td) {
-  font-size: 1rem;
+  font-size: 0.875rem;
+  color: var(--vt-c-text-secondary);
 }
 
 .vehicle-cell {
@@ -393,21 +653,255 @@ const handleDelete = async () => {
 }
 
 .vehicle-cell strong {
-  color: #333;
+  color: var(--vt-c-text-primary);
 }
 
 .vehicle-cell small {
-  color: #666;
+  color: var(--vt-c-text-tertiary);
 }
 
 .fuel-efficiency {
   font-weight: 600;
-  color: #667eea;
+  color: var(--vt-c-primary);
 }
 
 .action-buttons {
   display: flex;
   gap: 0.5rem;
+}
+
+/* スマホ用の表示切替タブ（デフォルトでは非表示） */
+.mobile-only {
+  display: none;
+}
+
+.display-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--vt-c-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button i {
+  font-size: 1rem;
+}
+
+.tab-button.active {
+  background: var(--vt-c-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.3);
+}
+
+.tab-button:hover:not(.active) {
+  background: var(--vt-c-bg-blue-light);
+  color: var(--vt-c-primary);
+}
+
+/* スマホ用のリスト表示（デフォルトでは非表示） */
+.mobile-list {
+  display: none;
+}
+
+.mobile-table-view {
+  display: none;
+}
+
+/* 一覧表示用のシンプルテーブル */
+.simple-table {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--vt-c-bg-lavender);
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: var(--vt-c-bg-blue-light);
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+}
+
+.table-header .table-cell {
+  font-weight: 600;
+}
+
+.mobile-record-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mobile-record-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.mobile-record-content {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+}
+
+.record-row:last-child {
+  border-bottom: none;
+}
+
+.record-label {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-secondary);
+  font-weight: 600;
+}
+
+.record-value {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+  font-weight: 500;
+}
+
+.record-value.highlight {
+  color: var(--vt-c-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* もっと見るボタン */
+.show-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 1rem 0;
+}
+
+.show-more-button {
+  width: 100%;
+  max-width: 300px;
+  border-color: var(--vt-c-primary);
+  color: var(--vt-c-primary);
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.show-more-button:hover {
+  background: var(--vt-c-primary);
+  color: white;
+  border-color: var(--vt-c-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
+}
+
+/* 詳細表示ダイアログ */
+.detail-content {
+  padding: 0.5rem 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--vt-c-divider-light-2);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-secondary);
+  font-weight: 600;
+  min-width: 100px;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: var(--vt-c-text-primary);
+  text-align: right;
+}
+
+.detail-value.highlight {
+  color: var(--vt-c-primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.detail-value strong {
+  color: var(--vt-c-text-primary);
+}
+
+.detail-value small {
+  color: var(--vt-c-text-tertiary);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.detail-actions button {
+  flex: 1;
 }
 
 .dialog-content {
@@ -426,17 +920,18 @@ const handleDelete = async () => {
   font-size: 1rem;
 }
 
-/* PC画面（1200px以上） */
-@media (min-width: 1200px) {
+/* PC画面（768px以上） */
+@media (min-width: 768px) {
   .fuel-record-list-container {
-    max-width: 1400px;
+    padding: 2rem;
   }
-}
 
-/* タブレット画面（768px〜1199px） */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .fuel-record-list-container {
-    max-width: 900px;
+  .filter-card {
+    max-width: 700px;
+  }
+
+  .table-card {
+    max-width: 1400px;
   }
 }
 
@@ -453,22 +948,39 @@ const handleDelete = async () => {
   }
 
   .header-left {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .page-header h1 {
-    font-size: 1.5rem;
-    text-align: center;
+    font-size: 1.125rem;
+  }
+
+  .filter-card {
+    max-width: 100%;
   }
 
   .vehicle-select {
     max-width: 100%;
   }
 
-  .fuel-table :deep(.p-datatable-thead > tr > th),
-  .fuel-table :deep(.p-datatable-tbody > tr > td) {
-    font-size: 0.9rem;
+  /* スマホではPC用テーブルを非表示に */
+  .desktop-table {
+    display: none;
+  }
+
+  /* スマホ用のタブを表示 */
+  .mobile-only {
+    display: flex;
+  }
+
+  /* 表示モードに応じて表示切り替え */
+  .mobile-list {
+    display: block;
+  }
+
+  .mobile-table-view {
+    display: block;
   }
 }
 </style>

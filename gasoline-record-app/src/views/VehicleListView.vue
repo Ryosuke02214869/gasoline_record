@@ -185,9 +185,9 @@ const handleDelete = async () => {
 
 <style scoped>
 .vehicle-list-container {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--vt-c-bg-lavender);
+  padding: 1.5rem;
 }
 
 .page-header {
@@ -206,10 +206,39 @@ const handleDelete = async () => {
 }
 
 .page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--vt-c-text-primary);
   margin: 0;
+}
+
+.page-header :deep(.p-button) {
+  background: var(--vt-c-primary);
+  border: none;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.2);
+}
+
+.page-header :deep(.p-button:hover) {
+  background: var(--vt-c-primary-dark);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
+}
+
+.header-left :deep(.p-button) {
+  background: var(--vt-c-primary);
+  border: none;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.2);
+}
+
+.header-left :deep(.p-button:hover) {
+  background: var(--vt-c-primary-dark);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
 }
 
 .loading-container {
@@ -222,7 +251,14 @@ const handleDelete = async () => {
 }
 
 .empty-state {
-  margin-top: 2rem;
+  max-width: 400px;
+  margin: 2rem auto;
+}
+
+.empty-state :deep(.p-card) {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .empty-content {
@@ -233,40 +269,67 @@ const handleDelete = async () => {
   padding: 3rem 2rem;
 }
 
+.empty-content i {
+  color: var(--vt-c-text-tertiary);
+}
+
 .empty-content h2 {
   margin: 1rem 0 0.5rem;
-  color: #666;
-  font-size: 1.5rem;
+  color: var(--vt-c-text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .empty-content p {
-  color: #999;
+  color: var(--vt-c-text-secondary);
   margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.empty-content :deep(.p-button) {
+  background: var(--vt-c-primary);
+  border: none;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.2);
 }
 
 .vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .vehicle-card {
-  font-size: 1.1rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--vt-c-bg-blue-light);
+  color: var(--vt-c-primary);
   padding: 2rem;
   text-align: center;
   font-size: 3rem;
+  border-radius: 20px 20px 0 0;
 }
 
 .vehicle-card :deep(.p-card-title) {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
+  color: var(--vt-c-text-primary);
 }
 
 .vehicle-info {
@@ -274,15 +337,15 @@ const handleDelete = async () => {
 }
 
 .license-plate {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #667eea;
+  color: var(--vt-c-primary);
   font-family: monospace;
 }
 
 .vehicle-meta {
-  color: #999;
-  font-size: 0.95rem;
+  color: var(--vt-c-text-tertiary);
+  font-size: 0.75rem;
 }
 
 .card-actions {
@@ -292,6 +355,7 @@ const handleDelete = async () => {
 
 .card-actions button {
   flex: 1;
+  border-radius: 8px;
 }
 
 .dialog-content {
@@ -310,21 +374,27 @@ const handleDelete = async () => {
   font-size: 1.1rem;
 }
 
-/* PC画面（1200px以上） */
-@media (min-width: 1200px) {
-  .vehicle-grid {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  }
-}
-
-/* タブレット画面（768px〜1199px） */
-@media (min-width: 768px) and (max-width: 1199px) {
+/* PC画面（768px以上） */
+@media (min-width: 768px) {
   .vehicle-list-container {
-    max-width: 900px;
+    padding: 2rem;
   }
 
   .vehicle-grid {
     grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+  }
+
+  .empty-state {
+    max-width: 500px;
+  }
+}
+
+/* PC画面（1024px以上） */
+@media (min-width: 1024px) {
+  .vehicle-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
   }
 }
 
@@ -341,17 +411,16 @@ const handleDelete = async () => {
   }
 
   .header-left {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .page-header h1 {
-    font-size: 1.5rem;
-    text-align: center;
+    font-size: 1.125rem;
   }
 
   .vehicle-grid {
-    grid-template-columns: 1fr;
+    max-width: 100%;
   }
 
   .card-actions {
