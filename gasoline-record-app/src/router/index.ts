@@ -72,6 +72,20 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
+  // 認証の初期化が完了するまで待機
+  // main.tsでawaitしているため、通常はこのケースには入らないが、
+  // より堅牢にするための追加チェック
+  if (authStore.loading) {
+    // 初期化が完了するまで待機
+    const unwatch = authStore.$subscribe(() => {
+      if (!authStore.loading) {
+        unwatch()
+        next()
+      }
+    })
+    return
+  }
+
   // 認証が必要なページ
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
