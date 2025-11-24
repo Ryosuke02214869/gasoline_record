@@ -149,7 +149,7 @@
     <!-- スマホ用のリスト表示 -->
     <div v-if="displayedRecords.length > 0" class="mobile-list">
       <Card
-        v-for="record in displayedRecords"
+        v-for="record in mobileDisplayedRecords"
         :key="record.id"
         class="mobile-record-card"
         @click="showRecordDetail(record)"
@@ -168,12 +168,20 @@
               <span class="record-label">走行距離</span>
               <span class="record-value">{{ formatNumber(record.odometer) }} km</span>
             </div>
-            <div class="record-tap-hint">
-              <i class="pi pi-angle-right"></i>
-            </div>
           </div>
         </template>
       </Card>
+
+      <!-- もっと見るボタン -->
+      <div v-if="hasMoreRecords" class="show-more-container">
+        <Button
+          :label="`もっと見る (残り${remainingRecordsCount}件)`"
+          icon="pi pi-angle-down"
+          @click="showMoreRecords"
+          outlined
+          class="show-more-button"
+        />
+      </div>
     </div>
 
     <!-- 詳細表示ダイアログ（スマホ用） -->
@@ -300,6 +308,7 @@ const deleteDialogVisible = ref(false)
 const recordToDelete = ref<FuelRecord | null>(null)
 const detailDialogVisible = ref(false)
 const selectedRecord = ref<FuelRecord | null>(null)
+const mobileDisplayLimit = ref(5)
 
 const vehicleOptions = computed(() => {
   return [
@@ -316,6 +325,18 @@ const displayedRecords = computed(() => {
     return fuelRecordStore.records
   }
   return fuelRecordStore.recordsByVehicle(selectedVehicleId.value)
+})
+
+const mobileDisplayedRecords = computed(() => {
+  return displayedRecords.value.slice(0, mobileDisplayLimit.value)
+})
+
+const hasMoreRecords = computed(() => {
+  return displayedRecords.value.length > mobileDisplayLimit.value
+})
+
+const remainingRecordsCount = computed(() => {
+  return displayedRecords.value.length - mobileDisplayLimit.value
 })
 
 onMounted(async () => {
@@ -338,6 +359,13 @@ onMounted(async () => {
 
 const handleVehicleChange = async () => {
   // フィルタリングはcomputedで自動的に行われる
+  // 車両を変更したら表示件数をリセット
+  mobileDisplayLimit.value = 5
+}
+
+const showMoreRecords = () => {
+  // すべてのレコードを表示
+  mobileDisplayLimit.value = displayedRecords.value.length
 }
 
 const formatDate = (dateString: string) => {
@@ -638,13 +666,31 @@ const handleDelete = async () => {
   font-size: 1rem;
 }
 
-.record-tap-hint {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--vt-c-text-tertiary);
-  font-size: 1.25rem;
+/* もっと見るボタン */
+.show-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 1rem 0;
+}
+
+.show-more-button {
+  width: 100%;
+  max-width: 300px;
+  border-color: var(--vt-c-primary);
+  color: var(--vt-c-primary);
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.show-more-button:hover {
+  background: var(--vt-c-primary);
+  color: white;
+  border-color: var(--vt-c-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
 }
 
 /* 詳細表示ダイアログ */
