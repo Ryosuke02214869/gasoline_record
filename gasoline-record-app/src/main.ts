@@ -30,6 +30,9 @@ async function initializeApp() {
     theme: {
       preset: Aura,
       options: {
+        // PrimeVueのダークモード自動検出を無効化（常にライトモード表示）
+        // OSのprefers-color-schemeに関わらず、ライトモードのみを使用する
+        darkModeSelector: false,
         // シニア世代向けに大きめのフォントサイズを設定
         cssLayer: {
           name: 'primevue',
