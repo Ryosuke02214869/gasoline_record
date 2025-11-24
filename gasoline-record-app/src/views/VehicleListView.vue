@@ -226,6 +226,21 @@ const handleDelete = async () => {
   box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
 }
 
+.header-left :deep(.p-button) {
+  background: var(--vt-c-primary);
+  border: none;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(91, 95, 237, 0.2);
+}
+
+.header-left :deep(.p-button:hover) {
+  background: var(--vt-c-primary-dark);
+  box-shadow: 0 4px 12px rgba(91, 95, 237, 0.3);
+}
+
 .loading-container {
   display: flex;
   flex-direction: column;
