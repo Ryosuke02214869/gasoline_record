@@ -53,7 +53,8 @@
   --section-gap: 160px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* ダークモード設定を一時的に無効化 */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
     --color-background-soft: var(--vt-c-black-soft);
@@ -65,7 +66,7 @@
     --color-heading: var(--vt-c-white);
     --color-text: rgba(235, 235, 235, 0.64);
   }
-}
+} */
 
 *,
 *::before,
