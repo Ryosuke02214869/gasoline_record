@@ -255,7 +255,12 @@ const handleSubmit = async () => {
   }
 
   try {
-    const dateString = currentDate.toISOString().split('T')[0] as string
+    // ローカルタイムゾーンでYYYY-MM-DD形式の文字列を作成
+    // toISOString()はUTCに変換されるため、タイムゾーンによって日付がずれる問題を回避
+    const year = currentDate.getFullYear()
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+    const day = String(currentDate.getDate()).padStart(2, '0')
+    const dateString = `${year}-${month}-${day}`
 
     await fuelRecordStore.createRecord(
       currentVehicleId,
