@@ -102,9 +102,10 @@ export const useVehicleStore = defineStore('vehicle', () => {
       }
 
       // ローカルの配列を更新
+      // Vue のリアクティビティを確実にトリガーするため、splice() を使用
       const index = vehicles.value.findIndex((v) => v.id === id)
       if (index !== -1 && data) {
-        vehicles.value[index] = data
+        vehicles.value.splice(index, 1, data)
       }
 
       return data
