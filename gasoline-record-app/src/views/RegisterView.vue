@@ -237,12 +237,30 @@ const handleRegister = async () => {
 /* PrimeVue Password component wrapper */
 .form-group :deep(.p-password) {
   width: 100%;
+  position: relative;
 }
 
 .form-group :deep(.p-password input) {
   width: 100%;
   font-size: 1.1rem;
   padding: 0.75rem;
+  padding-right: 3rem;
+}
+
+/* toggleMaskアイコンの位置調整 */
+.form-group :deep(.p-password .p-password-toggle-icon) {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.form-group :deep(.p-password button.p-password-toggle) {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
 }
 
 .password-hint {
