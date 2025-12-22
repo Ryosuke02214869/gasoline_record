@@ -15,6 +15,7 @@ export interface FuelRecord {
   // リレーション
   vehicles?: {
     name: string
+    model?: string
     license_plate: string
   }
   // 計算フィールド
@@ -74,6 +75,7 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
           *,
           vehicles (
             name,
+            model,
             license_plate
           )
         `,
@@ -132,6 +134,7 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
           *,
           vehicles (
             name,
+            model,
             license_plate
           )
         `,
@@ -200,6 +203,7 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
           *,
           vehicles (
             name,
+            model,
             license_plate
           )
         `,
@@ -276,52 +280,61 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
   function calculateFuelEfficiency(recordsList: FuelRecord[]): FuelRecord[] {
     if (recordsList.length === 0) return []
 
-    // 日付順にソート（古い順）
-    const sorted = [...recordsList].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    )
+    // 車両IDごとにグループ化（異なる車両のレコードを比較しないようにする）
+    const recordsByVehicle = new Map<string, FuelRecord[]>()
 
-    return sorted.map((record, index) => {
-      // 給油金額の計算
-      const total_cost = record.fuel_amount * record.price_per_liter
+    for (const record of recordsList) {
+      const vehicleRecords = recordsByVehicle.get(record.vehicle_id) || []
+      vehicleRecords.push(record)
+      recordsByVehicle.set(record.vehicle_id, vehicleRecords)
+    }
 
-      // 最初の記録の場合は前回からの計算ができない
-      if (index === 0) {
+    // 各車両ごとに燃費を計算
+    const allCalculatedRecords: FuelRecord[] = []
+
+    for (const [vehicleId, vehicleRecords] of recordsByVehicle) {
+      // 車両内で日付順にソート（古い順）
+      const sorted = [...vehicleRecords].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      )
+
+      // 同じ車両のレコード同士のみで燃費計算
+      const calculated = sorted.map((record, index) => {
+        // 給油金額の計算
+        const total_cost = record.fuel_amount * record.price_per_liter
+
+        // 最初の記録の場合は前回からの計算ができない
+        if (index === 0) {
+          return {
+            ...record,
+            total_cost,
+            distance_from_previous: null,
+            fuel_efficiency: null,
+          }
+        }
+
+        // 前回の記録（同じ車両のもの）
+        const previousRecord = sorted[index - 1]
+
+        // 前回からの走行距離
+        const distance_from_previous = record.odometer - previousRecord.odometer
+
+        // 燃費（km/L）
+        const fuel_efficiency =
+          distance_from_previous > 0 ? distance_from_previous / record.fuel_amount : null
+
         return {
           ...record,
           total_cost,
-          distance_from_previous: null,
-          fuel_efficiency: null,
+          distance_from_previous,
+          fuel_efficiency,
         }
-      }
+      })
 
-      // 前回の記録
-      const previousRecord = sorted[index - 1]
+      allCalculatedRecords.push(...calculated)
+    }
 
-      // 前回の記録がない場合
-      if (!previousRecord) {
-        return {
-          ...record,
-          total_cost,
-          distance_from_previous: null,
-          fuel_efficiency: null,
-        }
-      }
-
-      // 前回からの走行距離
-      const distance_from_previous = record.odometer - previousRecord.odometer
-
-      // 燃費（km/L）
-      const fuel_efficiency =
-        distance_from_previous > 0 ? distance_from_previous / record.fuel_amount : null
-
-      return {
-        ...record,
-        total_cost,
-        distance_from_previous,
-        fuel_efficiency,
-      }
-    })
+    return allCalculatedRecords
   }
 
   function clearError() {

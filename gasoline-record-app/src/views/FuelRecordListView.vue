@@ -100,6 +100,9 @@
             <template #body="{ data }">
               <div class="vehicle-cell">
                 <strong>{{ data.vehicles?.name }}</strong>
+                <span v-if="data.vehicles?.model" class="vehicle-model">
+                  ({{ data.vehicles.model }})
+                </span>
                 <br />
                 <small>{{ data.vehicles?.license_plate }}</small>
               </div>
@@ -251,6 +254,9 @@
           <span class="detail-label">車両</span>
           <div class="detail-value">
             <strong>{{ selectedRecord.vehicles?.name }}</strong>
+            <span v-if="selectedRecord.vehicles?.model" class="vehicle-model-badge">
+              {{ selectedRecord.vehicles.model }}
+            </span>
             <br />
             <small>{{ selectedRecord.vehicles?.license_plate }}</small>
           </div>
@@ -660,6 +666,13 @@ const handleDelete = async () => {
   color: var(--vt-c-text-tertiary);
 }
 
+.vehicle-model {
+  color: var(--vt-c-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
 .fuel-efficiency {
   font-weight: 600;
   color: var(--vt-c-primary);
@@ -893,6 +906,17 @@ const handleDelete = async () => {
 
 .detail-value small {
   color: var(--vt-c-text-tertiary);
+}
+
+.vehicle-model-badge {
+  display: inline-block;
+  background: var(--vt-c-bg-blue-light);
+  color: var(--vt-c-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
 }
 
 .detail-actions {

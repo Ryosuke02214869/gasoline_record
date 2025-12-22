@@ -30,12 +30,24 @@
             <InputText
               id="name"
               v-model="name"
-              placeholder="例: トヨタ プリウス"
+              placeholder="例: マイカー"
               :invalid="!!nameError"
               class="input-field"
               autofocus
             />
+            <small class="help-text">車両の愛称やニックネームを入力</small>
             <small v-if="nameError" class="error-message">{{ nameError }}</small>
+          </div>
+
+          <div class="form-group">
+            <label for="model">車種・モデル名</label>
+            <InputText
+              id="model"
+              v-model="model"
+              placeholder="例: プリウス、フィット、アクア"
+              class="input-field"
+            />
+            <small class="help-text">車両のモデル名（任意）</small>
           </div>
 
           <div class="form-group">
@@ -90,6 +102,7 @@ const vehicleStore = useVehicleStore()
 const toast = useToast()
 
 const name = ref('')
+const model = ref('')
 const licensePlate = ref('')
 const nameError = ref('')
 const licensePlateError = ref('')
@@ -121,7 +134,11 @@ const handleSubmit = async () => {
   }
 
   try {
-    await vehicleStore.createVehicle(name.value.trim(), licensePlate.value.trim())
+    await vehicleStore.createVehicle(
+      name.value.trim(),
+      licensePlate.value.trim(),
+      model.value.trim() || undefined,
+    )
     toast.add({
       severity: 'success',
       summary: '成功',
@@ -196,6 +213,12 @@ const handleSubmit = async () => {
   width: 100%;
   font-size: 1.1rem;
   padding: 0.75rem;
+}
+
+.help-text {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
 }
 
 .error-message {

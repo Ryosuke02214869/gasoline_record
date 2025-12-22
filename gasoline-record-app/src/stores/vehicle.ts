@@ -7,6 +7,7 @@ export interface Vehicle {
   id: string
   user_id: string
   name: string
+  model?: string
   license_plate: string
   created_at: string
   updated_at: string
@@ -43,7 +44,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
     }
   }
 
-  async function createVehicle(name: string, licensePlate: string) {
+  async function createVehicle(name: string, licensePlate: string, model?: string) {
     loading.value = true
     error.value = null
 
@@ -59,6 +60,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
           user_id: authStore.user.id,
           name,
           license_plate: licensePlate,
+          ...(model && { model }),
         })
         .select()
         .single()
@@ -82,7 +84,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
     }
   }
 
-  async function updateVehicle(id: string, name: string, licensePlate: string) {
+  async function updateVehicle(id: string, name: string, licensePlate: string, model?: string) {
     loading.value = true
     error.value = null
 
@@ -92,6 +94,7 @@ export const useVehicleStore = defineStore('vehicle', () => {
         .update({
           name,
           license_plate: licensePlate,
+          ...(model !== undefined && { model: model || null }),
         })
         .eq('id', id)
         .select()
