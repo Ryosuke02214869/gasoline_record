@@ -316,6 +316,16 @@ export const useFuelRecordStore = defineStore('fuelRecord', () => {
         // 前回の記録（同じ車両のもの）
         const previousRecord = sorted[index - 1]
 
+        // 前回の記録がない場合（型チェック用）
+        if (!previousRecord) {
+          return {
+            ...record,
+            total_cost,
+            distance_from_previous: null,
+            fuel_efficiency: null,
+          }
+        }
+
         // 前回からの走行距離
         const distance_from_previous = record.odometer - previousRecord.odometer
 
