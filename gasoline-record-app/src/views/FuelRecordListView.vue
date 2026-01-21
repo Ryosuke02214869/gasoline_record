@@ -178,6 +178,10 @@
         <template #content>
           <div class="mobile-record-content">
             <div class="record-row">
+              <span class="record-label">車両</span>
+              <span class="record-value">{{ record.vehicles?.name }}</span>
+            </div>
+            <div class="record-row">
               <span class="record-label">日付</span>
               <span class="record-value">{{ formatDate(record.date) }}</span>
             </div>
@@ -209,9 +213,9 @@
     <div v-if="displayedRecords.length > 0 && displayMode === 'table'" class="mobile-table-view">
       <div class="simple-table">
         <div class="table-header">
+          <div class="table-cell">車両</div>
           <div class="table-cell">日付</div>
           <div class="table-cell">給油量</div>
-          <div class="table-cell">走行距離</div>
         </div>
         <div
           v-for="record in mobileDisplayedRecords"
@@ -219,9 +223,9 @@
           class="table-row"
           @click="showRecordDetail(record)"
         >
+          <div class="table-cell">{{ record.vehicles?.name }}</div>
           <div class="table-cell">{{ formatDateShort(record.date) }}</div>
           <div class="table-cell">{{ record.fuel_amount.toFixed(2) }}L</div>
-          <div class="table-cell">{{ formatNumber(record.odometer) }}km</div>
         </div>
       </div>
 
